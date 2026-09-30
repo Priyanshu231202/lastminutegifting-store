@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /search
+Disallow: /cart
+Disallow: /checkout
+Disallow: /thank-you
+
+Sitemap: https://lastminutegifting.store/sitemap.xml
