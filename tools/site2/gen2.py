@@ -8,10 +8,13 @@ _FP = 'fetchpriority="high" '
 _LZ = 'loading="lazy" '
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, 'out')
-OLD = '/home/claude/lastminutegifting-repo/public_html'      # current site (photos, og images, titles)
+OLD = '/home/claude/oldsite/public_html'      # current site (photos, og images, titles)
 BASE = 'https://lastminutegifting.store'
 D = json.load(open('/home/claude/lmg/data.json', encoding='utf-8'))
 P, CAT, OCC, S, PAGES = D['products'], D['catalog']['categories'], D['catalog']['occasions'], D['settings'], D['pages']
+sys.path.insert(0, HERE)
+from events_data import new_products, NEW_CATS, EVENTS
+P = P + new_products(); CAT = CAT + NEW_CATS
 WA_NUM = S['whatsapp']; PHONE = '+91 85888 77032'; TEL = 'tel:+918588877032'; EMAIL = S['email']
 TODAY = datetime.now(timezone.utc).strftime('%Y-%m-%d')
 e = lambda s: html.escape(str(s), quote=True)
@@ -28,6 +31,7 @@ os.makedirs(OUT)
 
 # ------------------------------------------------------------------ images
 def webp_src(p):
+    if p.get('_src'): return p['_src']
     img = (p.get('images') or [None])[0]
     return os.path.join(OLD, re.sub(r'\.[^.]+$', '.webp', img).lstrip('/')) if img else None
 
@@ -73,7 +77,7 @@ def old_meta(rel):
     return (html.unescape(t.group(1)) if t else None), (html.unescape(d.group(1)) if d else None)
 
 # ------------------------------------------------------------------ shared chrome
-NAV = [('Next-day kits', '/next-day-kits/'), ('Shop all', '/collections/all/')] + [(c['name'], f'/collections/{c["slug"]}/') for c in CAT] + [('Trophies', '/trophies/'), ('Bulk orders', '/bulk-enquiry/')]
+NAV = [('Next-day kits', '/next-day-kits/'), ('Events', '/events/'), ('Shop all', '/collections/all/')] + [(c['name'], f'/collections/{c["slug"]}/') for c in CAT] + [('Trophies', '/trophies/'), ('Bulk orders', '/bulk-enquiry/')]
 
 ICON = {
     'search': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
@@ -105,14 +109,14 @@ def header(active=''):
   <div class="max-w-6xl mx-auto px-4 h-16 flex items-center gap-2">
     <button type="button" class="lg:hidden h-10 w-10 grid place-items-center rounded-full hover:bg-card -ml-2" data-open="#drawer" aria-label="Open menu">{ICON['menu']}</button>
     <a href="/" class="font-display font-extrabold text-xl tracking-tight mr-auto" aria-label="lastminutegifting home">lastminute<span class="text-coral">gifting</span></a>
-    <button type="button" data-open="#search" class="hidden sm:flex items-center gap-2 h-10 px-4 rounded-full border-2 border-line text-muted hover:border-ink w-56 text-sm">{ICON['search']}<span>Search 376 gifts</span></button>
+    <button type="button" data-open="#search" class="hidden sm:flex items-center gap-2 h-10 px-4 rounded-full border-2 border-line text-muted hover:border-ink w-56 text-sm">{ICON['search']}<span>Search {len(P)} gifts</span></button>
     <button type="button" data-open="#search" class="sm:hidden h-10 w-10 grid place-items-center rounded-full hover:bg-card" aria-label="Search">{ICON['search']}</button>
     <button id="themeBtn" type="button" class="h-10 w-10 grid place-items-center rounded-full hover:bg-card" aria-label="Switch light or dark mode">{ICON['moon']}</button>
     <a href="/cart/" class="relative h-10 w-10 grid place-items-center rounded-full hover:bg-card" aria-label="Enquiry list">{ICON['bag']}<span data-list-count hidden class="absolute -top-0.5 -right-0.5 min-w-[20px] h-5 px-1 rounded-full bg-coral text-white text-[11px] font-bold grid place-items-center">0</span></a>
     <a href="/next-day-kits/" class="press sticker hidden md:inline-flex items-center gap-2 bg-coral text-white font-semibold px-4 h-10 rounded-full ml-1">Build my kit</a>
   </div>
   <nav class="hidden lg:block border-t border-line" aria-label="Shop">
-    <div class="max-w-6xl mx-auto px-4 py-2 flex gap-1 overflow-x-auto">{links}</div>
+    <div class="max-w-6xl mx-auto px-4 py-2 flex gap-1 overflow-x-auto no-scrollbar [mask-image:linear-gradient(to_right,black_90%,transparent)]">{links}</div>
   </nav>
 </header>'''
 
@@ -126,7 +130,7 @@ def drawer():
     <a href="/next-day-kits/" class="press sticker rounded-2xl bg-coral text-white p-4 grid gap-1"><span class="font-mono text-[11px] uppercase tracking-wider text-butter">New</span><span class="font-display font-extrabold text-xl">Next-day corporate kits</span><span class="text-sm text-white/85">Branded, packed and delivered tomorrow</span></a>
     <div><p class="font-mono text-xs uppercase tracking-wider text-muted mb-1">Shop by category</p><ul class="font-semibold">{cats}<li><a class="flex items-center gap-3 py-2" href="/trophies/"><img src="/uploads/tro/tro-hero.webp" alt="" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-xl object-cover border border-line">Trophies &amp; Awards</a></li></ul></div>
     <div><p class="font-mono text-xs uppercase tracking-wider text-muted mb-2">Shop by occasion</p><div class="flex flex-wrap gap-2">{occ}</div></div>
-    <div class="grid gap-1 font-semibold"><a href="/collections/all/" class="py-1.5">All gifts</a><a href="/collections/bestsellers/" class="py-1.5">Bestsellers</a><a href="/collections/new/" class="py-1.5">New arrivals</a><a href="/bulk-enquiry/" class="py-1.5">Bulk &amp; corporate orders</a><a href="/pages/about/" class="py-1.5">About us</a><a href="/pages/faq/" class="py-1.5">FAQ</a></div>
+    <div class="grid gap-1 font-semibold"><a href="/collections/all/" class="py-1.5">All gifts</a><a href="/events/" class="py-1.5">Gifts by event</a><a href="/collections/bestsellers/" class="py-1.5">Bestsellers</a><a href="/collections/new/" class="py-1.5">New arrivals</a><a href="/bulk-enquiry/" class="py-1.5">Bulk &amp; corporate orders</a><a href="/pages/about/" class="py-1.5">About us</a><a href="/pages/faq/" class="py-1.5">FAQ</a></div>
     <div class="rounded-2xl border-2 border-ink p-4 grid gap-2"><p class="font-semibold">Pricing on WhatsApp or call</p><a href="{wa('Hi! I need help choosing a gift.')}" target="_blank" rel="noopener" class="h-11 rounded-full bg-[#25D366] text-white font-semibold inline-flex items-center justify-center gap-2">{ICON['wa']} WhatsApp us</a><a href="{TEL}" class="h-11 rounded-full border-2 border-ink font-semibold inline-flex items-center justify-center gap-2">{ICON['phone']} {PHONE}</a></div>
   </aside>
 </div>'''
@@ -187,7 +191,7 @@ def footer():
       <div class="mt-4 flex flex-wrap gap-2"><a href="{wa('Hi!')}" target="_blank" rel="noopener" class="h-10 px-4 rounded-full bg-[#25D366] text-white font-semibold inline-flex items-center gap-2">{ICON['wa']} WhatsApp</a><a href="{TEL}" class="h-10 px-4 rounded-full border-2 border-ink font-semibold inline-flex items-center gap-2">{ICON['phone']} Call</a></div>
     </div>
     <div><p class="font-semibold mb-2">Shop</p><ul class="grid gap-1.5 text-muted">{cats}<li><a href="/trophies/" class="hover:text-ink">Trophies &amp; Awards</a></li></ul></div>
-    <div><p class="font-semibold mb-2">Help</p><ul class="grid gap-1.5 text-muted"><li><a href="/next-day-kits/" class="hover:text-ink">Next-day kits</a></li><li><a href="/bulk-enquiry/" class="hover:text-ink">Bulk &amp; corporate orders</a></li><li><a href="/pages/about/" class="hover:text-ink">About</a></li><li><a href="/pages/faq/" class="hover:text-ink">FAQ</a></li><li><a href="/pages/shipping/" class="hover:text-ink">Delivery policy</a></li><li><a href="/pages/refunds/" class="hover:text-ink">Returns &amp; refunds</a></li><li><a href="/pages/terms/" class="hover:text-ink">Terms &amp; privacy</a></li></ul></div>
+    <div><p class="font-semibold mb-2">Help</p><ul class="grid gap-1.5 text-muted"><li><a href="/next-day-kits/" class="hover:text-ink">Next-day kits</a></li><li><a href="/events/" class="hover:text-ink">Gifts by event</a></li><li><a href="/bulk-enquiry/" class="hover:text-ink">Bulk &amp; corporate orders</a></li><li><a href="/pages/about/" class="hover:text-ink">About</a></li><li><a href="/pages/faq/" class="hover:text-ink">FAQ</a></li><li><a href="/pages/shipping/" class="hover:text-ink">Delivery policy</a></li><li><a href="/pages/refunds/" class="hover:text-ink">Returns &amp; refunds</a></li><li><a href="/pages/terms/" class="hover:text-ink">Terms &amp; privacy</a></li></ul></div>
     <div><p class="font-semibold mb-2">Talk to us</p><ul class="grid gap-1.5 text-muted"><li class="flex items-center gap-2"><span class="select-all font-mono">{PHONE}</span><button type="button" data-copy="{PHONE}" class="text-xs font-semibold text-coral">Copy</button></li><li class="break-all select-all">{e(EMAIL)}</li><li>New Delhi, India</li><li class="pt-2 text-xs">Thakur Traders · Thakur Enterprises · Harivansh Mahaprabhu · Shri Radhe Wall Clocks</li></ul></div>
   </div>
   <p class="text-center text-xs text-muted pb-24 md:pb-8">© {datetime.now().year} lastminutegifting · Prices on request</p>
@@ -327,7 +331,7 @@ slides = [
      ['bamboo-finish-diary-pen-set-dg-01', 'ecoweave-bottle-bot-001', 'golden-orbit-keychain-k-15', 'executive-card-holder-w-01']),
     ('bg-ink text-paper', 'text-butter', 'Diwali 2026', 'Diwali boxes that<br>land on time.', 'Hampers, copper drinkware and festive sets for teams and clients, with your logo and a printed card.', '/collections/diwali-gifting/', 'Shop Diwali gifting',
      ['royal-purple-diwali-treat-hamper', 'floral-bottle-and-cup-corporate-set', 'saffron-celebration-gift-box', 'colorful-diwali-treat-collection']),
-    ('bg-lilac text-onpop', 'text-coral', 'Schools · colleges · offices', 'Kits for every<br>kind of event.', 'Joining kits, farewells, fests, convocations and conferences. From 5 kits to 500.', '/next-day-kits/#events', 'Explore event kits',
+    ('bg-lilac text-onpop', 'text-coral', 'Schools · colleges · offices', 'Kits for every<br>kind of event.', 'Joining kits, farewells, fests, convocations and conferences. From 5 kits to 500.', '/events/', 'Explore event kits',
      ['anti-theft-laptop-backpack-with-usb-bg-120', 'tan-organiser-diary-pen-set-dg-13', 'urban-carry-tumbler-mug-001', 'aurum-notebook-n-31b']),
 ]
 hero_slides = ''
@@ -376,6 +380,40 @@ faq_items = [('What is the cut-off for next-day delivery?', 'Approve your artwor
              ('Can I see my logo before you print?', 'Yes. Send your logo on WhatsApp and we share a mock-up within 30 minutes. You can also preview it yourself in the mock-up studio on the next-day kits page.')]
 faq_html = ''.join(f'<details class="group rounded-2xl border-2 border-ink bg-card p-5"><summary class="flex justify-between items-center gap-4 cursor-pointer font-semibold">{e(q)}<span class="plus text-2xl leading-none transition-transform">+</span></summary><p class="mt-3 text-muted">{e(a)}</p></details>' for q, a in faq_items)
 
+# ================================================================== EVENTS (data)
+def pick(tags, n=10, skip=()):
+    pools = []
+    for t in tags:
+        pool = [p for p in P if (p['category'] == t[4:] if t.startswith('cat:') else p.get('subcategory') == t) and p['slug'] not in skip]
+        pools.append(sorted(pool, key=lambda p: ORDER[p['slug']]))
+    out, seen, i = [], set(), 0
+    while len(out) < n and any(i < len(pl) for pl in pools):
+        for pl in pools:
+            if i < len(pl) and pl[i]['slug'] not in seen and len(out) < n: out.append(pl[i]); seen.add(pl[i]['slug'])
+        i += 1
+    return out
+for ev in EVENTS:
+    used = set()
+    for x in ev['events']:
+        x['slug'] = slugify(x['name'])
+        items = pick(x['tags'], skip=used)
+        if len(items) < 6: items = (items + [p for p in pick(x['tags'], n=20) if p not in items])[:10]
+        x['items'] = items; used |= {p['slug'] for p in items[:5]}
+    cov, seen = [], set()
+    for k in range(10):
+        for x in ev['events']:
+            if k < len(x['items']) and x['items'][k]['slug'] not in seen and len(cov) < 4: cov.append(x['items'][k]); seen.add(x['items'][k]['slug'])
+    ev['cover'] = cov
+def _ev_tile(ev):
+    imgs = ''.join(f'<img src="{THUMB[p["slug"]]}" alt="" width="480" height="480" loading="lazy" decoding="async" class="w-full aspect-square object-cover rounded-2xl">' for p in ev['cover'])
+    names = e(', '.join(x['name'] for x in ev['events'][:4])) + '…'
+    return (f'<a href="/events/{ev["slug"]}/" class="press snap-start shrink-0 w-[70%] sm:w-[40%] lg:w-[23%] rounded-3xl border-2 border-ink overflow-hidden {ev["color"]} flex flex-col">'
+            f'<div class="grid grid-cols-2 gap-1 p-1">{imgs}</div><div class="p-4 pt-3"><p class="font-display font-extrabold text-2xl">{ev["emoji"]} {e(ev["name"])}</p>'
+            f'<p class="text-sm opacity-80 mt-1">{names}</p></div></a>')
+EVENT_TILES = ('<section class="max-w-6xl mx-auto px-4 pt-12" data-reveal><div class="flex items-end justify-between gap-3 mb-5"><div class="min-w-0"><p class="font-mono text-xs uppercase tracking-[0.18em] text-coral font-bold">8 worlds · 48 events</p><h2 class="font-display font-extrabold text-3xl md:text-4xl tracking-tight mt-1">Shop by event</h2></div>'
+               f'<a href="/events/" class="font-semibold text-coral inline-flex items-center gap-1 whitespace-nowrap shrink-0">All events {ICON["arrow"]}</a></div>'
+               '<div class="flex gap-3 overflow-x-auto snap-x -mx-4 px-4 pb-3 no-scrollbar">' + ''.join(_ev_tile(ev) for ev in EVENTS) + '</div></section>')
+
 home = f'''
 <section class="max-w-6xl mx-auto px-4 pt-5">
   <div id="heroTrack" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-[2rem]" aria-roledescription="carousel">{hero_slides}</div>
@@ -390,6 +428,7 @@ home = f'''
   <div class="flex items-end justify-between gap-3 mb-5"><h2 class="font-display font-extrabold text-3xl md:text-4xl tracking-tight">Shop by category</h2><a href="/collections/all/" class="font-semibold text-coral inline-flex items-center gap-1 whitespace-nowrap shrink-0">All {len(P)} {ICON['arrow']}</a></div>
   <div class="flex gap-4 overflow-x-auto snap-x -mx-4 px-4 pb-3">{cat_tiles}</div>
 </section>
+{EVENT_TILES}
 
 <section class="max-w-6xl mx-auto px-4 pt-10" data-reveal>
   <div class="flex flex-wrap items-end justify-between gap-3"><h2 class="font-display font-extrabold text-3xl md:text-4xl tracking-tight">Coming up. Plan before the rush.</h2><p class="text-sm text-muted">Days left, India time</p></div>
@@ -454,7 +493,7 @@ write('/', page('/', t or 'lastminutegifting | Next-Day Corporate Gifts in Delhi
                extra_head=f'<link rel="preload" as="image" href="{H(slides[0][7][0])}" fetchpriority="high">'))
 
 # ================================================================== COLLECTIONS
-coll_slugs = sorted(os.listdir(os.path.join(OLD, 'collections')))
+coll_slugs = sorted(set(os.listdir(os.path.join(OLD, 'collections'))) | {c['slug'] for c in CAT})
 for slug in coll_slugs:
     if slug in CAT_BY: name, blurb, kind = CAT_BY[slug]['name'], CAT_BY[slug]['blurb'], 'category'
     elif slug in OCC_BY: name, blurb, kind = f"{OCC_BY[slug]['name']} Gifts", f"Hand-picked gifts for {OCC_BY[slug]['name'].lower()}.", 'occasion'
@@ -555,6 +594,86 @@ for p in P:
            'category': c['name'] if c else p['category'], 'url': BASE + url, 'brand': {'@type': 'Brand', 'name': 'lastminutegifting'}}, crumbs(trail)]
     og = f'/uploads/og/{p["slug"]}.jpg' if os.path.exists(os.path.join(OUT, f'uploads/og/{p["slug"]}.jpg')) else '/uploads/og-banner.jpg'
     write(url, page(url, t or f'{p["name"]} | lastminutegifting', dsc or p.get('description', ''), body, og=og, ld=ld, active=f'/collections/{p["category"]}/', body_attr=' data-no-promo data-pdp'), lastmod=(p.get('createdAt') or TODAY)[:10])
+
+# ================================================================== EVENTS (pages)
+def ev_wa(ev, x):
+    return wa(f"Hi! I need gifts for {x['name']} ({ev['name']}). Headcount: __, date: __, budget per person: __")
+
+hub_cards = ''.join(f'''<a href="/events/{ev['slug']}/" class="press group rounded-[2rem] border-2 border-ink overflow-hidden {ev['color']} flex flex-col min-w-0" data-reveal>
+  <div class="grid grid-cols-4 gap-1 p-1.5">{''.join(f'<img src="{THUMB[p["slug"]]}" alt="" width="480" height="480" loading="lazy" decoding="async" class="w-full aspect-square object-cover rounded-xl">' for p in ev['cover'])}</div>
+  <div class="p-5 pt-3 flex flex-col gap-3 flex-1">
+    <div class="flex items-center justify-between gap-3"><h2 class="font-display font-extrabold text-3xl tracking-tight">{ev['emoji']} {e(ev['name'])}</h2><span class="h-10 w-10 shrink-0 grid place-items-center rounded-full bg-paper text-ink border-2 border-ink group-hover:translate-x-1 transition-transform">{ICON['arrow']}</span></div>
+    <p class="text-sm opacity-85">{e(ev['tagline'])}</p>
+    <div class="flex flex-wrap gap-1.5">{''.join(f'<span class="inline-flex items-center h-7 px-2.5 rounded-full bg-paper/90 text-ink text-xs font-semibold border border-ink/20">{e(x["name"])}</span>' for x in ev['events'])}</div>
+  </div></a>''' for ev in EVENTS)
+hub = f'''<section class="max-w-6xl mx-auto px-4 pt-6">
+  {crumb_html([('Home', '/'), ('Events', '/events/')])}
+  <div class="mt-4 rounded-[2rem] bg-ink text-paper p-6 sm:p-10 sticker relative overflow-hidden">
+    <span class="wobble absolute right-4 top-4 sm:right-8 sm:top-8 inline-block bg-butter text-onpop font-mono font-bold text-xs uppercase tracking-widest px-3 py-1.5 rounded-full border-2 border-paper">48 events</span>
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-butter font-bold">Gifts by event</p>
+    <h1 class="font-display font-extrabold text-4xl sm:text-6xl tracking-tight mt-2 max-w-[16ch]">What's the occasion?</h1>
+    <p class="mt-3 text-paper/80 max-w-[52ch]">Pick your event. We'll suggest the kit, print it in-house and deliver next day across Delhi NCR. Pricing on WhatsApp or a call.</p>
+    <div class="mt-5 flex flex-wrap gap-2">{''.join(f'<a href="/events/{ev["slug"]}/" class="inline-flex items-center gap-1.5 h-10 px-4 rounded-full bg-paper/10 border border-paper/30 font-semibold text-sm hover:bg-paper hover:text-ink">{ev["emoji"]} {e(ev["name"])}</a>' for ev in EVENTS)}</div>
+  </div>
+</section>
+<section class="max-w-6xl mx-auto px-4 pt-8 grid grid-cols-1 md:grid-cols-2 gap-4">{hub_cards}</section>
+<section class="max-w-6xl mx-auto px-4 pt-10" data-reveal>
+  <div class="rounded-[2rem] border-2 border-ink bg-card p-6 sm:p-8 grid grid-cols-1 md:grid-cols-[1.4fr_1fr] gap-5 items-center">
+    <div class="min-w-0"><h2 class="font-display font-extrabold text-3xl tracking-tight">Event not listed?</h2><p class="mt-2 text-muted">Tell us what's happening, how many people and your date. We'll send options in 30 minutes.</p></div>
+    <div class="grid gap-2"><a href="{wa('Hi! I need gifts for an event. Event: __, headcount: __, date: __, budget per person: __')}" target="_blank" rel="noopener" class="press sticker h-12 rounded-full bg-[#25D366] text-white font-semibold inline-flex items-center justify-center gap-2">{ICON['wa']} WhatsApp us</a><a href="{TEL}" class="h-12 rounded-full border-2 border-ink font-semibold inline-flex items-center justify-center gap-2">{ICON['phone']} {PHONE}</a></div>
+  </div>
+</section>'''
+write('/events/', page('/events/', 'Gifts by Event: School, College, Office, Govt & Festivals | lastminutegifting',
+                       'Event gifting in Delhi NCR for schools, colleges, universities, offices, govt events, festivals, concerts and weddings. Branded in-house, delivered next day.',
+                       hub, ld=[crumbs([('Home', '/'), ('Events', '/events/')])], active='/events/'))
+
+for k, ev in enumerate(EVENTS):
+    url = f'/events/{ev["slug"]}/'
+    nav = ''.join(f'<a href="#{x["slug"]}" class="chip">{e(x["name"])}</a>' for x in ev['events'])
+    secs = ''
+    for j, x in enumerate(ev['events']):
+        kit = ''.join(f'<span class="chip-sm">{e(t)}</span>' for t in x['kit'])
+        cards = ''.join(card(p, rail=True) for p in x['items'])
+        secs += f'''<section id="{x['slug']}" class="max-w-6xl mx-auto px-4 pt-10 scroll-mt-36" data-reveal>
+  <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 md:items-end mb-4">
+    <div class="min-w-0"><p class="font-mono text-xs uppercase tracking-[0.18em] text-coral font-bold">{e(ev['name'])} · {j + 1:02d}</p>
+      <h2 class="font-display font-extrabold text-3xl md:text-4xl tracking-tight mt-1">{e(x['name'])}</h2>
+      <p class="mt-1 text-muted">{e(x['blurb'])}</p>
+      <div class="mt-3 flex flex-wrap items-center gap-1.5"><span class="text-xs font-bold uppercase tracking-wider mr-1">Typical kit</span>{kit}</div></div>
+    <div class="flex items-center gap-2"><a href="{ev_wa(ev, x)}" target="_blank" rel="noopener" class="press sticker h-11 px-5 rounded-full bg-[#25D366] text-white font-semibold inline-flex items-center gap-2 whitespace-nowrap">{ICON['wa']} Ask for this kit</a>
+      <button type="button" data-rail-prev class="hidden md:grid h-10 w-10 place-items-center rounded-full border-2 border-ink" aria-label="Scroll left">{ICON['left']}</button><button type="button" data-rail-next class="hidden md:grid h-10 w-10 place-items-center rounded-full border-2 border-ink" aria-label="Scroll right">{ICON['right']}</button></div>
+  </div>
+  <div class="relative"><div data-rail class="flex gap-3 md:gap-4 overflow-x-auto snap-x -mx-4 px-4 pb-3 scroll-px-4">{cards}</div></div>
+</section>'''
+    prints = ''.join(f'<li class="rounded-2xl border-2 border-ink bg-card p-4 font-semibold flex items-center gap-2 min-w-0"><span class="text-coral">✺</span><span class="min-w-0">{e(t)}</span></li>' for t in ev['print'])
+    others = ''.join(f'<a href="/events/{o["slug"]}/" class="chip">{o["emoji"]} {e(o["name"])}</a>' for o in EVENTS if o is not ev)
+    body = f'''<section class="max-w-6xl mx-auto px-4 pt-6">
+  {crumb_html([('Home', '/'), ('Events', '/events/'), (ev['name'], url)])}
+  <div class="mt-4 rounded-[2rem] border-2 border-ink overflow-hidden {ev['color']} grid grid-cols-1 md:grid-cols-[1.3fr_1fr] sticker">
+    <div class="p-6 sm:p-10 min-w-0">
+      <p class="font-mono text-xs uppercase tracking-[0.18em] font-bold opacity-80">Event gifting · {len(ev['events'])} events</p>
+      <h1 class="font-display font-extrabold text-5xl sm:text-6xl tracking-tight mt-2">{ev["emoji"]} {e(ev["name"])}</h1>
+      <p class="mt-3 text-lg opacity-90 max-w-[44ch]">{e(ev['tagline'])}</p>
+      <div class="mt-6 flex flex-wrap gap-2"><a href="{wa(f"Hi! I need gifts for a {ev['name'].lower()} event. Event: __, headcount: __, date: __")}" target="_blank" rel="noopener" class="press sticker h-12 px-6 rounded-full bg-paper text-ink font-semibold inline-flex items-center gap-2">{ICON['wa']} Get options</a><a href="/next-day-kits/" class="h-12 px-6 rounded-full border-2 border-current font-semibold inline-flex items-center">Need it tomorrow?</a></div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 p-3 md:p-4">{''.join(f'<img src="{THUMB[p["slug"]]}" alt="{e(p["name"])}" width="480" height="480" {"" if i < 2 else "loading=" + chr(34) + "lazy" + chr(34) + " "}decoding="async" class="w-full aspect-square object-cover rounded-2xl border-2 border-ink {["-rotate-2", "rotate-2", "rotate-1", "-rotate-1"][i]}">' for i, p in enumerate(ev['cover']))}</div>
+  </div>
+</section>
+<div class="sticky z-30 bg-paper/95 backdrop-blur border-b border-line mt-6" style="top: calc(64px + env(safe-area-inset-top, 0px))"><div class="max-w-6xl mx-auto px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar">{nav}</div></div>
+{secs}
+<section class="max-w-6xl mx-auto px-4 pt-12" data-reveal>
+  <div class="rounded-[2rem] bg-ink text-paper p-6 sm:p-8">
+    <p class="font-mono text-xs uppercase tracking-[0.18em] text-butter font-bold">Print room add-ons</p>
+    <h2 class="font-display font-extrabold text-3xl tracking-tight mt-1">We also print for {e(ev['name'].lower())} events</h2>
+    <p class="mt-2 text-paper/75">Offset, UV, UV DTF, screen and sublimation, all in-house. Same delivery as your gifts.</p>
+    <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-ink">{prints}</ul>
+  </div>
+</section>
+<section class="max-w-6xl mx-auto px-4 pt-10"><p class="font-semibold mb-3">More events</p><div class="flex flex-wrap gap-2">{others}</div></section>'''
+    title = f"{ev['name']} Event Gifts in Delhi: {', '.join(x['name'] for x in ev['events'][:3])} | lastminutegifting"
+    desc = f"Gifts and branded kits for {ev['name'].lower()} events: {', '.join(x['name'] for x in ev['events'])}. Printed in-house, next-day delivery in Delhi NCR."
+    write(url, page(url, title, desc, body, ld=[crumbs([('Home', '/'), ('Events', '/events/'), (ev['name'], url)])], active='/events/',
+                    og=f'/uploads/og/{ev["cover"][0]["slug"]}.jpg' if os.path.exists(os.path.join(OUT, f'uploads/og/{ev["cover"][0]["slug"]}.jpg')) else '/uploads/og-banner.jpg'))
 
 # ================================================================== CART / SEARCH
 cart = f'''

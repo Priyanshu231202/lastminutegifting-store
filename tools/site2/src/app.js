@@ -67,7 +67,7 @@
     var run = function () {
       loadIndex().then(function (d) {
         var v = $('#searchPageInput').value, r = searchIn(v, d);
-        $('#searchCount').textContent = v.trim() ? r.length + ' results for “' + v + '”' : 'Type to search 376 gifts';
+        $('#searchCount').textContent = v.trim() ? r.length + ' results for “' + v + '”' : 'Type to search ' + d.length + ' gifts';
         sp.innerHTML = r.slice(0, 60).map(function (p) { return '<li>' + cardMini(p) + '</li>'; }).join('');
       });
     };
