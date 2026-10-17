@@ -77,7 +77,7 @@ def old_meta(rel):
     return (html.unescape(t.group(1)) if t else None), (html.unescape(d.group(1)) if d else None)
 
 # ------------------------------------------------------------------ shared chrome
-NAV = [('Next-day kits', '/next-day-kits/'), ('Events', '/events/'), ('Shop all', '/collections/all/')] + [(c['name'], f'/collections/{c["slug"]}/') for c in CAT] + [('Trophies', '/trophies/'), ('Bulk orders', '/bulk-enquiry/')]
+NAV = [('Next-day kits', '/next-day-kits/'), ('Build a hamper', '/build-your-hamper/'), ('Events', '/events/'), ('Shop all', '/collections/all/')] + [(c['name'], f'/collections/{c["slug"]}/') for c in CAT] + [('Trophies', '/trophies/'), ('Bulk orders', '/bulk-enquiry/')]
 
 ICON = {
     'search': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
@@ -130,7 +130,7 @@ def drawer():
     <a href="/next-day-kits/" class="press sticker rounded-2xl bg-coral text-white p-4 grid gap-1"><span class="font-mono text-[11px] uppercase tracking-wider text-butter">New</span><span class="font-display font-extrabold text-xl">Next-day corporate kits</span><span class="text-sm text-white/85">Branded, packed and delivered tomorrow</span></a>
     <div><p class="font-mono text-xs uppercase tracking-wider text-muted mb-1">Shop by category</p><ul class="font-semibold">{cats}<li><a class="flex items-center gap-3 py-2" href="/trophies/"><img src="/uploads/tro/tro-hero.webp" alt="" width="40" height="40" loading="lazy" class="h-10 w-10 rounded-xl object-cover border border-line">Trophies &amp; Awards</a></li></ul></div>
     <div><p class="font-mono text-xs uppercase tracking-wider text-muted mb-2">Shop by occasion</p><div class="flex flex-wrap gap-2">{occ}</div></div>
-    <div class="grid gap-1 font-semibold"><a href="/collections/all/" class="py-1.5">All gifts</a><a href="/events/" class="py-1.5">Gifts by event</a><a href="/collections/bestsellers/" class="py-1.5">Bestsellers</a><a href="/collections/new/" class="py-1.5">New arrivals</a><a href="/bulk-enquiry/" class="py-1.5">Bulk &amp; corporate orders</a><a href="/pages/about/" class="py-1.5">About us</a><a href="/pages/faq/" class="py-1.5">FAQ</a></div>
+    <div class="grid gap-1 font-semibold"><a href="/collections/all/" class="py-1.5">All gifts</a><a href="/build-your-hamper/" class="py-1.5">Build your own hamper</a><a href="/events/" class="py-1.5">Gifts by event</a><a href="/collections/bestsellers/" class="py-1.5">Bestsellers</a><a href="/collections/new/" class="py-1.5">New arrivals</a><a href="/bulk-enquiry/" class="py-1.5">Bulk &amp; corporate orders</a><a href="/pages/about/" class="py-1.5">About us</a><a href="/pages/faq/" class="py-1.5">FAQ</a></div>
     <div class="rounded-2xl border-2 border-ink p-4 grid gap-2"><p class="font-semibold">Pricing on WhatsApp or call</p><a href="{wa('Hi! I need help choosing a gift.')}" target="_blank" rel="noopener" class="h-11 rounded-full bg-[#25D366] text-white font-semibold inline-flex items-center justify-center gap-2">{ICON['wa']} WhatsApp us</a><a href="{TEL}" class="h-11 rounded-full border-2 border-ink font-semibold inline-flex items-center justify-center gap-2">{ICON['phone']} {PHONE}</a></div>
   </aside>
 </div>'''

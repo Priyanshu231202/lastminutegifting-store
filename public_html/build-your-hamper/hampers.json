@@ -1,0 +1,27 @@
+{
+  "photoDir": "/uploads/hamper",
+  "items": {
+    "1": { "name": "Almond gift pouch", "photo": "/uploads/t/almond-gift-pouch.webp" },
+    "2": { "name": "Dry-fruit platter", "photo": "/uploads/t/assorted-dry-fruit-celebration-tray.webp" },
+    "3": { "name": "Floating diya set", "photo": "/uploads/t/floating-diya-light-set.webp" },
+    "4": { "name": "Decorative candle tin", "photo": "/uploads/t/colorful-decorative-candle-tin.webp" },
+    "5": { "name": "Two-tone ceramic mug", "photo": "/uploads/t/beige-and-charcoal-two-tone-mug.webp" },
+    "6": { "name": "Cashew snack pack", "photo": "/uploads/t/green-cashew-snack-pack.webp" }
+  },
+  "boxes": [
+    {
+      "id": "kraft",
+      "name": "Festive kraft box",
+      "note": "Rigid kraft box with ribbon",
+      "max": 4,
+      "items": ["1", "2", "3", "4"]
+    },
+    {
+      "id": "royal",
+      "name": "Royal velvet tray",
+      "note": "Velvet-lined tray with gold border",
+      "max": 3,
+      "items": ["1", "3", "5", "6"]
+    }
+  ]
+}

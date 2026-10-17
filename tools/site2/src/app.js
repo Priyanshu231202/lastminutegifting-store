@@ -106,7 +106,7 @@
     cartBox.innerHTML = l.map(function (i, k) {
       return '<li class="flex gap-3 items-center p-3 rounded-2xl border-2 border-ink bg-card">' +
         '<img src="' + i.t + '" alt="" width="64" height="64" class="h-16 w-16 rounded-xl object-cover bg-white border border-line">' +
-        '<div class="flex-1 min-w-0"><a href="/products/' + i.s + '/" class="font-semibold leading-tight block">' + esc(i.n) + '</a>' +
+        '<div class="flex-1 min-w-0"><a href="' + esc(i.u || '/products/' + i.s + '/') + '" class="font-semibold leading-tight block">' + esc(i.n) + '</a>' +
         (i.b ? '<span class="text-xs text-muted">' + esc(i.b) + '</span>' : '') +
         '<div class="mt-2 inline-flex items-center rounded-full border-2 border-line"><button type="button" class="h-8 w-9 font-bold" data-q="' + k + '" data-d="-1" aria-label="Fewer">−</button><span class="w-10 text-center font-mono tnum">' + i.q + '</span><button type="button" class="h-8 w-9 font-bold" data-q="' + k + '" data-d="1" aria-label="More">+</button></div></div>' +
         '<button type="button" class="h-9 w-9 rounded-full border-2 border-line text-muted" data-rm="' + k + '" aria-label="Remove">✕</button></li>';

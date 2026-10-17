@@ -1,0 +1,65 @@
+<section class="hb" id="hb">
+  <div class="hb-hero">
+    <span class="badge bg-butter text-onpop">Diwali 2026</span>
+    <h1 class="font-display">Build your own hamper</h1>
+    <p>Pick a box, fill it with the gifts you like, and see the real hamper change with every pick. Send it to us on WhatsApp for pricing.</p>
+  </div>
+
+  <div class="hb-grid">
+    <div class="hb-steps">
+      <div class="hb-step">
+        <h2 class="font-display"><span class="hb-num">1</span> Choose your box</h2>
+        <div id="hbBoxes" class="hb-boxes" role="group" aria-label="Boxes"></div>
+      </div>
+      <div class="hb-step" id="hbItemsStep" hidden>
+        <div class="hb-step-head">
+          <h2 class="font-display"><span class="hb-num">2</span> Fill it</h2>
+          <span id="hbCount" class="hb-count font-mono tnum" aria-live="polite"></span>
+        </div>
+        <p id="hbFull" class="hb-full" hidden>Box is full. Remove an item to swap it for another.</p>
+        <div id="hbItems" class="hb-items" role="group" aria-label="Items"></div>
+      </div>
+    </div>
+
+    <aside class="hb-preview" id="hbPreview" aria-label="Your hamper">
+      <div class="hb-card sticker">
+        <div class="hb-frame" id="hbFrame">
+          <img id="hbImgA" alt="" width="900" height="900" decoding="async">
+          <img id="hbImgB" alt="" width="900" height="900" decoding="async">
+          <div id="hbFallback" class="hb-fallback" hidden>
+            <div id="hbFallbackItems" class="hb-fallback-items"></div>
+            <span class="hb-fallback-note">Exact photo coming soon</span>
+          </div>
+          <div id="hbEmpty" class="hb-empty">Choose a box to start</div>
+        </div>
+        <div class="hb-body">
+          <p class="hb-title font-display" id="hbTitle">Your hamper</p>
+          <ul id="hbChosen" class="hb-chosen"></ul>
+          <div class="hb-row">
+            <label for="hbQty">How many hampers?</label>
+            <div class="hb-stepper">
+              <button type="button" data-qty="-1" aria-label="Fewer">−</button>
+              <input id="hbQty" type="number" inputmode="numeric" min="1" value="1" class="font-mono tnum">
+              <button type="button" data-qty="1" aria-label="More">+</button>
+            </div>
+          </div>
+          <label for="hbNote" class="hb-label">Logo, message card or note <span>(optional)</span></label>
+          <input id="hbNote" class="field" maxlength="140" placeholder="e.g. Our logo on the box, Happy Diwali card">
+          <div class="hb-actions">
+            <button type="button" id="hbAdd" class="press sticker hb-btn hb-btn-coral" disabled>Add hamper to enquiry list</button>
+            <a id="hbWa" href="#" target="_blank" rel="noopener" class="hb-btn hb-btn-wa" aria-disabled="true">Get price on WhatsApp</a>
+          </div>
+          <p class="hb-hint" id="hbHint">Pick a box and at least one item.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <noscript><p class="hb-hint">The hamper builder needs JavaScript. You can also <a href="https://wa.me/918588877032?text=Hi%21%20I%20want%20to%20build%20a%20Diwali%20hamper.">WhatsApp us</a> and we'll build it with you.</p></noscript>
+</section>
+
+<div id="hbBar" class="hb-bar" hidden>
+  <img id="hbBarImg" alt="" width="48" height="48">
+  <div class="hb-bar-text"><b id="hbBarBox"></b><span id="hbBarCount"></span></div>
+  <a href="#hbPreview" class="press sticker hb-btn hb-btn-coral">View hamper</a>
+</div>

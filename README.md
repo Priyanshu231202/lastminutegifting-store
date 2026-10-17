@@ -20,3 +20,14 @@ python3 tools/gen.py /path/to/dist public_html
 ```
 
 `gen.py` also patches `useEffect(() => window.scrollTo(0, 0), [pathname])` in the app bundle. Better: fix it in the source as `useEffect(() => { window.scrollTo(0, 0) }, [pathname])`, and on mobile use `minmax(0,1fr)` instead of `1fr` in grids and `width:auto` on `.hero`.
+
+## Build-your-hamper page (`/build-your-hamper/`)
+
+Shoppers pick a box, then items, and the page shows the photo of that exact combination.
+
+- `tools/hamper/hampers.json` — the boxes, the items (numbered), which items fit each box and how many (`max`).
+- Photos live at `public_html/uploads/hamper/<box id>/<items>.webp`: `box.webp` is the empty box, `1-3.webp` is the box with items 1 and 3 (numbers sorted, joined by `-`).
+- Drop your real photos (jpg/png) into `tools/hamper/photos/<box id>/` named the same way and run `python3 tools/hamper/build.py public_html`. It resizes them, rewrites the page and copies `hampers.json`.
+- A combination without a photo still works: the page shows the empty box with the item pictures on top and "Exact photo coming soon".
+- `tools/hamper/make_samples.py` draws the stand-in "SAMPLE PHOTO" images; your real photos overwrite them file by file.
+- "Add hamper to enquiry list" puts it in the normal `/cart/` list; "Get price on WhatsApp" sends box, items, quantity, note and a hamper code.
